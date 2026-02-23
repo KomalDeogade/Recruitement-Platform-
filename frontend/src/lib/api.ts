@@ -10,20 +10,25 @@ export default async function api(
       ? localStorage.getItem("accessToken")
       : null;
 
+  const isAuthRoute =
+    url.includes("/auth/login") || url.includes("/auth/register");
+
   const res = await fetch(`${BASE_URL}${url}`, {
     ...options,
     headers: {
       "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(!isAuthRoute && token
+        ? { Authorization: `Bearer ${token}` }
+        : {}),
       ...(options.headers || {}),
     },
   });
 
-  if (res.status === 401 && !url.includes("/auth/login")) {
-  localStorage.removeItem("accessToken");
-  window.location.href = "/login";
-  throw new Error("Unauthorized");
-}
+  if (res.status === 401 && !isAuthRoute) {
+    localStorage.removeItem("accessToken");
+    window.location.href = "/login";
+    throw new Error("Unauthorized");
+  }
 
   if (!res.ok) {
     const data = await res.json().catch(() => ({}));

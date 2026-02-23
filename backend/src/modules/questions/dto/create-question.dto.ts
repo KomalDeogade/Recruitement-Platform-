@@ -1,48 +1,44 @@
 import {
-  IsString,
   IsEnum,
   IsOptional,
-  IsArray,
-  IsBoolean,
-  IsNumber,
+  IsString,
+  IsUUID,
 } from 'class-validator';
 import {
-  QuestionType,
   DifficultyLevel,
+  QuestionType,
   QuestionUsage,
   CreatorRole,
 } from '@prisma/client';
 
 export class CreateQuestionDto {
-  @IsString()
-  sectionId!: string;
+  @IsUUID()
+  sectionId: string;
 
-  @IsEnum(QuestionType)
-  type!: QuestionType;
+  @IsUUID()
+  orgId: string;
+
+  @IsString()
+  questionText: string;
 
   @IsEnum(DifficultyLevel)
-  difficulty!: DifficultyLevel;
+  difficulty: DifficultyLevel;
+
+  @IsEnum(QuestionType)
+  type: QuestionType;
 
   @IsEnum(QuestionUsage)
-  allowedFor!: QuestionUsage;
+  allowedFor: QuestionUsage;
 
   @IsString()
-  questionText!: string;
+  createdBy: string;
+
+  @IsEnum(CreatorRole)
+  creatorRole: CreatorRole;
 
   @IsOptional()
   correctAnswer?: string;
 
   @IsOptional()
   codingMeta?: any;
-
-  @IsOptional()
-  @IsArray()
-  options?: {
-    optionCode: string;
-    optionText: string;
-    isCorrect: boolean;
-  }[];
-
-  @IsNumber()
-  marks!: number;
 }

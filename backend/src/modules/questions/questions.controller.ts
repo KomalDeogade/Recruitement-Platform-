@@ -12,6 +12,8 @@ import {
 import { QuestionsService } from './questions.service';
 import { CreateQuestionDto } from './dto/create-question.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { Query } from '@nestjs/common';
+
 
 @Controller('questions')
 @UseGuards(JwtAuthGuard)
@@ -23,15 +25,25 @@ export class QuestionsController {
   // ================================
   @Post()
   create(@Body() dto: CreateQuestionDto, @Req() req: any) {
-    return this.service.create(dto, req.user);
+    return this.service.create(dto);
   }
 
-  // ================================
-  // GET QUESTIONS BY TEST
-  // ================================
-  @Get('test/:testId')
-  findByTest(@Param('testId') testId: string, @Req() req: any) {
-    return this.service.findByTest(testId, req.user.orgId);
+  // 📄 Get Questions by Test
+  //@Get()
+  //findByTest(@Query('testId') testId: string) {
+  //  return this.service.findByTest(testId);
+  //}
+
+  //GET questions by section
+  @Get('section/:sectionId')
+  findBySection(@Param('sectionId') sectionId: string) {
+    return this.service.findBySection(sectionId);
+  }
+
+  // 🔍 Get Single Question
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.service.findOne(id);
   }
 
   // ================================

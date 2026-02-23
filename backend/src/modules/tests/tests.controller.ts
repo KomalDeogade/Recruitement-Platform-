@@ -23,42 +23,39 @@ import { UserRole } from '@prisma/client';
 export class TestsController {
   constructor(private readonly testsService: TestsService) {}
 
-  // ✅ CREATE — College Admin + Company Admin
+  // ✅ CREATE
   @Post()
   @UseGuards(RolesGuard)
   @Roles(UserRole.COLLEGE_ADMIN, UserRole.COMPANY_ADMIN)
   create(@Body() dto: CreateTestDto, @Req() req: any) {
-    const orgId = req.user.orgId;
-    return this.testsService.create(dto, orgId);
-  }
-
-
-  // ✅ GET ALL (scoped to org). ?withAttemptCount=1 for college/company dashboard
-  @Get()
-  findAll(
-    @Req() req: any,
-    @Query('withAttemptCount') withAttemptCount?: string,
-  ) {
-    const orgId = req.user?.orgId;
-    return this.testsService.findAll(
-      orgId,
-      req.user,
-      withAttemptCount === '1' || withAttemptCount === 'true',
+    return this.testsService.create(
+      dto,
+      req.user.userId,
+      req.user.orgId,
     );
   }
 
-  // ✅ GET SUBMISSIONS FOR TEST (college/company admin) - must be before :id
+  // ✅ GET ALL
+  @Get()
+  findAll() {
+    return this.testsService.findAll();
+  }
+
+  // ✅ GET SUBMISSIONS FOR TEST
   @Get(':id/submissions')
   @UseGuards(RolesGuard)
   @Roles(UserRole.COLLEGE_ADMIN, UserRole.COMPANY_ADMIN)
   getTestSubmissions(@Param('id') id: string, @Req() req: any) {
-    return this.testsService.getSubmissionsForTest(id, req.user.orgId);
+    return this.testsService.getSubmissionsForTest(
+      id,
+      req.user.orgId,
+    );
   }
 
-  // ✅ GET ONE (scoped to org)
+  // ✅ GET ONE
   @Get(':id')
   findOne(@Param('id') id: string, @Req() req: any) {
-    return this.testsService.findOne(id, req.user.orgId);
+   return this.testsService.findOne(id);
   }
 
   // ✅ UPDATE
@@ -69,42 +66,39 @@ export class TestsController {
     return this.testsService.update(id, dto);
   }
 
-  // ✅ DELETE (scoped to org)
+  // ✅ DELETE
   @Delete(':id')
   @UseGuards(RolesGuard)
   @Roles(UserRole.COLLEGE_ADMIN, UserRole.COMPANY_ADMIN)
   remove(@Param('id') id: string, @Req() req: any) {
-    return this.testsService.remove(id, req.user.orgId);
+    return this.testsService.remove(id);
   }
 
   // ✅ STUDENT: GET QUESTIONS
   @Get(':id/questions')
-  //@UseGuards(JwtAuthGuard, RolesGuard)
-  //@Roles(UserRole.STUDENT)
   getTestQuestions(@Param('id') id: string) {
     return this.testsService.getQuestionsForTest(id);
   }
 
+  // ✅ ADMIN: GET QUESTIONS
   @Get(':id/questions/admin')
   getQuestionsForAdmin(@Param('id') id: string) {
     return this.testsService.getQuestionsForTest(id);
   }
 
-
-
+  // ✅ TOGGLE PUBLISH
   @Patch(':id/toggle-publish')
   @UseGuards(RolesGuard)
   @Roles(UserRole.SUPER_ADMIN, UserRole.COLLEGE_ADMIN, UserRole.COMPANY_ADMIN)
   togglePublish(@Param('id') id: string, @Req() req: any) {
-    const orgId = req.user?.orgId;
-    return this.testsService.togglePublish(id, orgId);
+    return this.testsService.togglePublish(id, req.user.orgId);
   }
 
+  // ✅ TOGGLE ACTIVE
   @Patch(':id/toggle-active')
   @UseGuards(RolesGuard)
   @Roles(UserRole.SUPER_ADMIN, UserRole.COLLEGE_ADMIN, UserRole.COMPANY_ADMIN)
   toggleActive(@Param('id') id: string, @Req() req: any) {
-    const orgId = req.user?.orgId;
-    return this.testsService.toggleActive(id, orgId);
+    return this.testsService.toggleActive(id, req.user.orgId);
   }
 }
